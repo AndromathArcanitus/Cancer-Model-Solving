@@ -12,7 +12,7 @@ def GeoMaker(MeshSize,mesh,file_name,Refine,j):
 
 
     lc = str(MeshSize)
-    center = [0.21,0.06]
+    center = [0.0,0.0]
     bmesh = BoundaryMesh(mesh, "exterior", True)
     Bxytmp = bmesh.coordinates()
     Theta = [math.atan2(Bxytmp[i,1]-center[1],Bxytmp[i,0]-center[0]) for i in range(len(Bxytmp))]
