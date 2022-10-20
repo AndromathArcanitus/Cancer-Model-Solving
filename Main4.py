@@ -268,6 +268,20 @@ maxC = Constant(13900000000)
 maxN = Constant(942000000)
 TotalD = Constant(76412021)
 
+## 4 ##
+# definition of constants used in the model
+K0 = Constant(40000)
+G0 = Constant(30000)
+c0 = Constant(5.0e-6)
+alpha0 = Constant(0.7)
+kappa0 = Constant(6.9e-14)
+dyViscBlood = Constant(3.5e-3)
+phi = Constant(0.2)
+cellVolume = Constant(1/4*pi*10e-10)
+#DarcyConst = -K0/phi/dyViscBlood
+DarcyConst = kappa0
+
+# Initial conditions for different clusters and different initial settings
 # U_0 = Expression(('2.367', '1.005', '0.019', '0.794', '0.764', '0.828', '1.122', '0', '0.020', '0.160', \
 # '2.394', '1.104', '1.806', '1.059'), degree = 2)
 U_0 = Expression(('2.367', '1.005 + 10*exp(-10000*x[0]*x[0] - 10000*x[1]*x[1])', '0.019', '0.794', '0.764', '0.828 + 8*exp(-10000*x[0]*x[0] - 10000*x[1]*x[1])', '1.122', '0', '0.020', '0.160', \
@@ -355,18 +369,7 @@ j = int(0)
 crvt1, NORMAL1 = Curvature(mesh)
 #######################################################################
 
-## 4 ##
-K0 = Constant(40000)
-G0 = Constant(30000)
-c0 = Constant(5.0e-6)
-alpha0 = Constant(0.7)
-kappa0 = Constant(6.9e-14)
-dyViscBlood = Constant(3.5e-3)
-phi = Constant(0.2)
-cellVolume = Constant(1/4*pi*10e-10)
-#DarcyConst = -K0/phi/dyViscBlood
-DarcyConst = kappa0
-
+# definition of V, the number of cells that are a part of the solid tumor, in the paper
 #ccn_1 = C, D*2, N at n - 1
 ccn_1 = maxC*C_n + maxD*D_n + maxDn*Dn_n + maxN*N_n
 ccn_0 = maxC*C_n + maxD*D_n + maxDn*Dn_n + maxN*N_n
@@ -407,11 +410,13 @@ for n in range(num_steps):
          RHS_MECH_ = project(RHS,S1)
          bfu, l, p = TrialFunctions(W)
          bfv, w, q = TestFunctions(W)
-
+	
+	 # weak forms for the mechanical part of the equations
          FM = (K0 + G0/3)*inner(nabla_div(bfu), nabla_div(bfv))*dx + G0*inner(nabla_grad(bfu), nabla_grad(bfv))*dx - alpha0*inner(p, div(bfv))*dx + K0*cellVolume*dot(ccn, div(bfv))*dx - K0*cellVolume*dot(grad(ccn_0), bfv)*dx\
          + c0*dot(p, q)*dx - c0*dot(p_n, q)*dx + alpha0*inner(div(bfu), q)*dx - alpha0*inner(div(bfu_n), q)*dx + dt*kappa0*inner(grad(p), grad(q))*dx\
          - sum(l[i]*inner(bfv, Z[i])*dx for i in range(len(Z))) - sum(w[i]*inner(bfu, Z[i])*dx for i in range(len(Z)))
-
+	
+	 # solving the mechanical part
          aM = lhs(FM)
          LM = rhs(FM)
          solve(aM == LM, bfU, bcp)
@@ -512,6 +517,7 @@ for n in range(num_steps):
          solve(F1==0, U, bcB)
 
          ## 5 ##
+	 # Calculating quantities for testing purposes
          # Dn_total =maxDn*assemble(Dn_n*dx)
          #Dn_nx, Dn_nt = split(Dn_n)
          # Dn_total =maxDn*assemble(Dn_n*dx)
