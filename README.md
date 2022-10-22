@@ -16,3 +16,5 @@ curvature.py is used to calculate the curvature of the boundary and guide shape 
 smoothen.py is used to smoothen non-smooth functions
 
 jobUMASS3.qs is the commands for running the code on the UMass GHPCC
+
+Main contributor: Navid Mirzaei
